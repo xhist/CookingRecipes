@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Recipes</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Recipes</h1>
+        <a th:href="@{/recipes/new}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Recipe
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="recipe : ${recipes}">
+            <div class="card h-100 recipe-card">
+                <img th:src="${recipe.image}" class="card-img-top recipe-image" th:alt="${recipe.name}">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${recipe.name}">Recipe Name</h5>
+                    <p class="card-text" th:text="${recipe.shortDescription}">Short description</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i>
+                            <span th:text="${recipe.preparationTime + ' min'}">Preparation time</span>
+                        </small>
+                        <a th:href="@{/recipes/{id}(id=${recipe.id})}" class="btn btn-sm btn-outline-primary">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        By <span th:text="${recipe.author.username}">Author</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
