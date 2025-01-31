@@ -2,31 +2,42 @@ package com.example.cookingrecipes.mapper;
 
 import com.example.cookingrecipes.dto.RecipeDto;
 import com.example.cookingrecipes.model.Recipe;
+import com.example.cookingrecipes.service.FileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class RecipeMapper {
     private final UserMapper userMapper;
+    private final FileService fileService;
+
+    @Value("${app.upload.dir}")
+    private String uploadDir;
+
 
     public RecipeDto toDto(Recipe recipe) {
         if (recipe == null) {
             return null;
         }
 
-        RecipeDto dto = new RecipeDto();
-        dto.setId(recipe.getId());
-        dto.setAuthor(userMapper.toDto(recipe.getAuthor()));
-        dto.setName(recipe.getName());
-        dto.setShortDescription(recipe.getShortDescription());
-        dto.setPreparationTime(recipe.getPreparationTime());
-        dto.setIngredients(recipe.getIngredients());
-        dto.setImage(recipe.getImage());
-        dto.setDescription(recipe.getDescription());
-        dto.setTags(recipe.getTags());
-        dto.setCreated(recipe.getCreated());
-        dto.setModified(recipe.getModified());
+        RecipeDto dto = RecipeDto.builder()
+                .id(recipe.getId())
+                .userDto(userMapper.toDto(recipe.getUser()))
+                .title(recipe.getTitle())
+                .shortDescription(recipe.getShortDescription())
+                .preparationTime(recipe.getPreparationTime())
+                .ingredients(recipe.getIngredients())
+                .description(recipe.getDescription())
+                .tags(recipe.getTags())
+                .created(recipe.getCreated())
+                .modified(recipe.getModified())
+                .build();
+
+        dto.setImageUrl(recipe.getImageUrl() != null && !recipe.getImageUrl().startsWith("data:")
+                ? fileService.encodeImageToBase64(recipe.getImageUrl())
+                : recipe.getImageUrl());
 
         return dto;
     }
@@ -38,11 +49,11 @@ public class RecipeMapper {
 
         Recipe recipe = new Recipe();
         recipe.setId(dto.getId());
-        recipe.setName(dto.getName());
+        recipe.setTitle(dto.getTitle());
         recipe.setShortDescription(dto.getShortDescription());
         recipe.setPreparationTime(dto.getPreparationTime());
         recipe.setIngredients(dto.getIngredients());
-        recipe.setImage(dto.getImage());
+        recipe.setImageUrl(dto.getImageUrl());
         recipe.setDescription(dto.getDescription());
         recipe.setTags(dto.getTags());
 

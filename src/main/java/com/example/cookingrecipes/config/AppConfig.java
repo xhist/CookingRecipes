@@ -1,7 +1,7 @@
 package com.example.cookingrecipes.config;
 
 import com.example.cookingrecipes.repository.UserRepository;
-import com.example.cookingrecipes.security.CustomUserDetailsService;
+import com.example.cookingrecipes.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

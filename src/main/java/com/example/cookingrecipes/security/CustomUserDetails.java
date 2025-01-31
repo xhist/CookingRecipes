@@ -48,4 +48,8 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return user.getStatus() == AccountStatus.ACTIVE;
     }
+
+    public String getProfileImage() {
+        return user.getImageUrl();
+    }
 }

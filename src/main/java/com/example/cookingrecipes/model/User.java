@@ -20,11 +20,9 @@ public class User {
     private Long id;
 
     @Column(unique = true)
+    @Pattern(regexp = "\\w{1,15}", message = "Username must be up to 15 word characters")
     @NotBlank
     private String username;
-
-    @Pattern(regexp = "\\w{1,15}", message = "Username must be up to 15 word characters")
-    private String loginName;
 
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=\\S+$).{8,}$",
             message = "Password must have at least 8 characters, one digit and one special character")
@@ -36,8 +34,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Pattern(regexp = "^(data:|https?://|//).*$", message = "Invalid image URL format")
-    private String profileImage;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String imageUrl;
 
     @Size(max = 512)
     private String bio;

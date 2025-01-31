@@ -26,25 +26,26 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final FileService fileService;
 
     @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalStateException("Username already exists");
         }
-        if (userRepository.existsByLoginName(request.getLoginName())) {
-            throw new IllegalStateException("Login name already exists");
-        }
 
         var user = new User();
         user.setUsername(request.getUsername());
-        user.setLoginName(request.getLoginName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setGender(request.getGender());
         user.setRole(Role.USER);
-        user.setProfileImage(getDefaultProfileImage(request));
         user.setBio(request.getBio());
         user.setStatus(AccountStatus.ACTIVE);
+
+        if (request.getImageUrl() != null && request.getImageUrl().startsWith("data:")) {
+            String imageUrl = fileService.saveImage(request.getImageUrl(), null);
+            user.setImageUrl(imageUrl);
+        }
 
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(new CustomUserDetails(savedUser));
@@ -76,16 +77,5 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .user(userMapper.toDto(user))
                 .build();
-    }
-
-    private String getDefaultProfileImage(RegisterRequest request) {
-        if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
-            return request.getProfileImage();
-        }
-        return switch (request.getGender()) {
-            case MALE -> "https://example.com/default-male-avatar.png";
-            case FEMALE -> "https://example.com/default-female-avatar.png";
-            default -> "https://example.com/default-avatar.png";
-        };
     }
 }

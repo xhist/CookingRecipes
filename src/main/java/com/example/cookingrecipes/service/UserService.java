@@ -20,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final FileService fileService;
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
@@ -42,6 +43,11 @@ public class UserService {
     public UserDto updateUser(UserDto userDto) {
         User existingUser = userRepository.findById(userDto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (userDto.getImageUrl() != null && userDto.getImageUrl().startsWith("data:")) {
+            String imageUrl = fileService.saveImage(userDto.getImageUrl(), existingUser.getImageUrl());
+            userDto.setImageUrl(imageUrl);
+        }
 
         User user = userMapper.toEntity(userDto);
         if (userDto.getPassword() != null) {

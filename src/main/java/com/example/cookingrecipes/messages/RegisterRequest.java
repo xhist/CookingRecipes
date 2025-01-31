@@ -1,9 +1,7 @@
 package com.example.cookingrecipes.messages;
 
 import com.example.cookingrecipes.model.enums.Gender;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
@@ -18,10 +16,11 @@ public class RegisterRequest {
             message = "Password must have at least 8 characters, one digit and one special character")
     private String password;
 
+    @NotNull
     private Gender gender;
 
-    @Pattern(regexp = "^(data:|https?://|//).*$", message = "Invalid image URL format")
-    private String profileImage;
+    @Pattern(regexp = "^$|^(data:|https?://|//).*$", message = "Invalid image URL format")
+    private String imageUrl;
 
     @Size(max = 512)
     private String bio;

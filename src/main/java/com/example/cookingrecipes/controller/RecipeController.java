@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -26,9 +27,7 @@ public class RecipeController {
 
     @PostMapping
     public ResponseEntity<RecipeDto> createRecipe(
-            @Valid @RequestBody RecipeDto recipeDto,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
+            @Valid @RequestBody RecipeDto recipeDto, @AuthenticationPrincipal UserDetails userDetails) {
         RecipeDto created = recipeService.createRecipe(recipeDto, userDetails.getUsername());
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -39,25 +38,21 @@ public class RecipeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecipeDto> getRecipe(@PathVariable Long id) {
+    public ResponseEntity<RecipeDto> getRecipeById(
+            @PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(recipeService.getRecipeById(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<RecipeDto> updateRecipe(
-            @PathVariable Long id,
-            @Valid @RequestBody RecipeDto recipeDto,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
+            @PathVariable Long id, @Valid @RequestBody RecipeDto recipeDto, @AuthenticationPrincipal UserDetails userDetails) {
         recipeDto.setId(id);
         return ResponseEntity.ok(recipeService.updateRecipe(recipeDto, userDetails.getUsername()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecipe(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
+            @PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         recipeService.deleteRecipe(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }

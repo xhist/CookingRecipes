@@ -23,6 +23,7 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final UserRepository userRepository;
     private final RecipeMapper recipeMapper;
+    private final FileService fileService;
 
     public List<RecipeDto> getAllRecipes() {
         return recipeRepository.findAll().stream()
@@ -31,11 +32,16 @@ public class RecipeService {
     }
 
     public RecipeDto createRecipe(RecipeDto recipeDto, String username) {
-        User author = userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        if (recipeDto.getImageUrl() != null && recipeDto.getImageUrl().startsWith("data:")) {
+            String imageUrl = fileService.saveImage(recipeDto.getImageUrl(), null);
+            recipeDto.setImageUrl(imageUrl);
+        }
+
         Recipe recipe = recipeMapper.toEntity(recipeDto);
-        recipe.setAuthor(author);
+        recipe.setUser(user);
 
         return recipeMapper.toDto(recipeRepository.save(recipe));
     }
@@ -57,8 +63,13 @@ public class RecipeService {
             throw new UnauthorizedAccessException("You don't have permission to modify this recipe");
         }
 
+        if (recipeDto.getImageUrl() != null && recipeDto.getImageUrl().startsWith("data:")) {
+            String imageUrl = fileService.saveImage(recipeDto.getImageUrl(), existingRecipe.getImageUrl());
+            recipeDto.setImageUrl(imageUrl);
+        }
+
         Recipe recipe = recipeMapper.toEntity(recipeDto);
-        recipe.setAuthor(existingRecipe.getAuthor());
+        recipe.setUser(existingRecipe.getUser());
 
         return recipeMapper.toDto(recipeRepository.save(recipe));
     }
@@ -78,6 +89,6 @@ public class RecipeService {
     }
 
     private boolean canModifyRecipe(Recipe recipe, User user) {
-        return user.getRole() == Role.ADMIN || recipe.getAuthor().getId().equals(user.getId());
+        return user.getRole() == Role.ADMIN || recipe.getUser().getId().equals(user.getId());
     }
 }

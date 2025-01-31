@@ -18,12 +18,12 @@ public class Recipe {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Size(max = 80)
     @NotBlank
-    private String name;
+    private String title;
 
     @Size(max = 256)
     private String shortDescription;
@@ -34,9 +34,10 @@ public class Recipe {
     @ElementCollection
     private List<String> ingredients;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     @NotBlank
-    @Pattern(regexp = "^(data:|https?://|//).*$", message = "Invalid image URL format")
-    private String image;
+    private String imageUrl;
 
     @Size(max = 2048)
     private String description;
